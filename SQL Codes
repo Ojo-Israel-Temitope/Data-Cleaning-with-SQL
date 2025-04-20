@@ -1,5 +1,5 @@
 # Data-Cleaning-with-SQL
-
+```sql
 Select * from [Road Accident Data]
 -- CLEANING THE JUNCTION_CONTROL COLUMN--
 --replaced the value Give way or uncontrolled to Give way--
@@ -247,3 +247,4 @@ set Time_Phase =
         ELSE 'Midnight'
     END
 rollback
+```
