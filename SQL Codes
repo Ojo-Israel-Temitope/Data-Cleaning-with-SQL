@@ -1,0 +1,249 @@
+# Data-Cleaning-with-SQL
+
+Select * from [Road Accident Data]
+-- CLEANING THE JUNCTION_CONTROL COLUMN--
+--replaced the value Give way or uncontrolled to Give way--
+update [Road Accident Data]
+set Junction_Control  = 
+replace(Junction_Control,'Give way or uncontrolled','Give way')
+
+select distinct Junction_Control from [Road Accident Data]
+
+--replaced the value Auto traffic sigl to Auto traffic signal--
+update [Road Accident Data]
+set Junction_Control  = 
+replace(Junction_Control,'Auto traffic sigl','Auto traffic signal')
+
+--replaced the value Auto traffic sigl to Auto traffic signal--
+update [Road Accident Data]
+set Junction_Control  = 
+replace(Junction_Control,'Not at junction or within 20 metres','Junction safety perimeter')
+
+begin transaction
+
+delete from [Road Accident Data]
+where Junction_Control = 'Data missing or out of range';
+
+
+--CLEANING JUNCTION_DETAIL COLUMN--
+select distinct Junction_Detail from [Road Accident Data];
+select Junction_Control, Junction_Detail from [Road Accident Data]
+where Junction_Control = 'Junction safety perimeter';
+
+--REPLACES T or staggered junction TO T-Junction--
+update [Road Accident Data]
+set Junction_Detail  = 
+replace(Junction_Detail,'T or staggered junction','T-Junction')
+
+--REPLACES Other junction TO Variant-Junction--
+update [Road Accident Data]
+set Junction_Detail  = 
+replace(Junction_Detail,'Other junction','Variant-Junction')
+
+--REPLACES Private drive or entrance TO Private drive--
+update [Road Accident Data]
+set Junction_Detail  = 
+replace(Junction_Detail,'Private drive or entrance','Private drive')
+
+--REPLACES More than 4 arms (not roundabout) TO Multi-Arm Nexus--
+update [Road Accident Data]
+set Junction_Detail  = 
+replace(Junction_Detail,'More than 4 arms (not roundabout)','Multi-Arm Nexus')
+commit transaction
+begin transaction
+delete from [Road Accident Data]
+where Junction_Detail = 'Not at junction or within 20 metres';
+rollback
+-- END OF CLEANING THE JUNCTION_DETAILS COLUMN--
+
+-- Cleaning Accident severity--
+select distinct Accident_Severity from [Road Accident Data]
+
+--REPLACES Fetal to Fatal
+update [Road Accident Data]
+set Accident_Severity  = 
+replace(Accident_Severity,'Fetal','Fatal')
+
+--REPLACES Slight to Minor--
+update [Road Accident Data]
+set Accident_Severity  = 
+replace(Accident_Severity,'Slight','Minor')
+
+select*from [Road Accident Data]
+
+--drops the following columns--
+alter table [Road Accident Data]
+drop column Latitude
+
+alter table [Road Accident Data]
+drop column Longitude
+
+--Cleaning Light condition
+select distinct Light_Conditions
+from [Road Accident Data]
+
+--replaces Darkness - lights lit to Darkness --
+update [Road Accident Data]
+set Light_Conditions  = 
+replace(Light_Conditions,'Darkness - lights lit','Darkness')
+
+--replaces Darkness - lights unlit to Darkness --
+update [Road Accident Data]
+set Light_Conditions  = 
+replace(Light_Conditions,'Darkness - lights unlit','Darkness')
+
+
+--replaces Darkness - lighting unknown to Darkness --
+update [Road Accident Data]
+set Light_Conditions  = 
+replace(Light_Conditions,'Darkness - lighting unknown','Darkness')
+
+--replaces Darkness - no lighting to Darkness --
+update [Road Accident Data]
+set Light_Conditions  = 
+replace(Light_Conditions,'Darkness - no lighting','Darkness')
+
+--end of light condition--        
+
+select * from [Road Accident Data]
+
+select distinct Carriageway_Hazards from [Road Accident Data]
+
+--cleaning carraigeway_Hazards column--
+--replaced Any animal in carriageway (except ridden horse) to Animals, Vehicle load on road to Loaded Vehicle--
+update [Road Accident Data]
+set Carriageway_Hazards  = 
+replace(replace(replace(Carriageway_Hazards,'Any animal in carriageway (except ridden horse)','Animals')
+,'Vehicle load on road','Loaded Vehicle'),'Other object on road', 'Dropped Items')
+
+--replaced Pedestrian in carriageway - not injured to Pedestrian
+update [Road Accident Data]
+set Carriageway_Hazards = 
+replace(Carriageway_Hazards,'Pedestrian in carriageway - not injured','Pedestrian')
+
+--replaced null values with none--
+update [Road Accident Data]
+set Carriageway_Hazards = 
+coalesce(Carriageway_Hazards,'None')
+
+select distinct Road_Surface_Conditions, count(Accident_Index) from [Road Accident Data]
+group by Road_Surface_Conditions
+
+--replaced null to Frost or ice--
+update [Road Accident Data]
+set Road_Surface_Conditions = 
+coalesce(Road_Surface_Conditions,'Frost or ice')
+
+--replaced Flood over 3cm. deep to ice--
+update [Road Accident Data]
+set Road_Surface_Conditions = 
+replace(Road_Surface_Conditions,'Flood over 3cm. deep','Frost or ice')
+
+--replaced Frost or ice to snow--
+update [Road Accident Data]
+set Road_Surface_Conditions = 
+replace(Road_Surface_Conditions,'Frost or ice','Snow')
+
+
+--replaced wet or damp to wet--
+update [Road Accident Data]
+set Road_Surface_Conditions = 
+replace(Road_Surface_Conditions,'Wet or damp','Wet')
+
+
+--replaced snow to wet --
+update [Road Accident Data]
+set Road_Surface_Conditions = 
+replace(Road_Surface_Conditions,'Snow','Wet')
+
+select distinct  Road_Type,count(Accident_Index) 
+from [Road Accident Data]
+group by Road_Type
+
+select *  from [Road Accident Data]
+
+--replaced null values with slip road
+update [Road Accident Data]
+set Road_Type = 
+coalesce(Road_Type,'Slip road')
+
+select distinct Weather_Conditions from [Road Accident Data]
+
+select distinct  coalesce(Vehicle_Type,'non'),count(Accident_Index) 
+from [Road Accident Data]
+group by Vehicle_Type
+
+-- replaced Goods 7.5 tonnes mgw and over to Truck--
+update [Road Accident Data]
+set  Vehicle_Type= 
+replace(Vehicle_Type,'Goods 7.5 tonnes mgw and over','Truck')
+
+-- replaced Goods over 3.5t. and under 7.5t to Truck--
+update [Road Accident Data]
+set  Vehicle_Type= 
+replace(Vehicle_Type,'Goods over 3.5t. and under 7.5t','Truck')
+
+--replaced Agricultural vehicle to truck--
+update [Road Accident Data]
+set  Vehicle_Type= 
+replace(Vehicle_Type,'Agricultural vehicle','Truck')
+
+--replaced Bus or coach (17 or more pass seats) to Bus--
+update [Road Accident Data]
+set  Vehicle_Type= 
+replace(Vehicle_Type,'Bus or coach (17 or more pass seats)','Bus')
+
+--replaced Minibus (8 - 16 passenger seats) to Bus
+update [Road Accident Data]
+set  Vehicle_Type= 
+replace(Vehicle_Type,'Minibus (8 - 16 passenger seats)','Bus')
+
+--replaced Other vehicle to Bus--
+update [Road Accident Data]
+set  Vehicle_Type= 
+replace(Vehicle_Type,'Other vehicle','Bus')
+begin transaction
+--Replaced incorrect values--
+update [Road Accident Data]
+set  Vehicle_Type= 
+replace(replace(replace(replace(replace(replace(replace(
+Vehicle_Type,'Motorcycle 125cc and under','Bike'),
+'Motorcycle 50cc and under','Bike'),
+'Motorcycle over 125cc and up to 500cc','Bike'),
+'Motorcycle over 500cc','Bike'),'Pedal cycle','Bike'),
+'Taxi/Private hire car','Car'),
+'Van / Goods 3.5 tonnes mgw or under','Van')
+commit transaction
+select distinct Vehicle_Type from [Road Accident Data]
+
+
+select distinct Junction_Detail  from [Road Accident Data]
+
+
+select distinct Carriageway_Hazards from [Road Accident Data]
+
+
+select * from [Road Accident Data]
+
+ALTER TABLE [Road Accident Data]
+ALTER COLUMN Accident_Index VARCHAR(25);
+
+
+ALTER TABLE [Road accident locations]
+ALTER COLUMN Accident_Index VARCHAR(25);
+
+ALTER TABLE [Road Accident Data]
+add Time_Phase varchar(30)
+
+begin transaction
+update [Road Accident Data]
+set Time_Phase =
+    CASE 
+        WHEN [Time] BETWEEN '03:00:00' AND '05:59:59' THEN 'Early Morning'
+        WHEN [Time] BETWEEN '06:00:00' AND '11:59:59' THEN 'Morning'
+        WHEN [Time] BETWEEN '12:00:00' AND '16:59:59' THEN 'Afternoon'
+        WHEN [Time] BETWEEN '17:00:00' AND '20:59:59' THEN 'Evening'
+        WHEN [Time] BETWEEN '21:00:00' AND '23:59:59' THEN 'Night'
+        ELSE 'Midnight'
+    END
+rollback
